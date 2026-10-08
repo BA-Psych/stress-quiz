@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ms. Cappucinia — Stress Management for Teachers</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+  body {
+    min-height: 100vh;
+    background: #3B2314;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,255,255,0.06) 0 2px, transparent 3px),
+      radial-gradient(circle at 80% 60%, rgba(255,255,255,0.05) 0 3px, transparent 4px),
+      radial-gradient(circle at 40% 80%, rgba(255,255,255,0.04) 0 2px, transparent 3px),
+      radial-gradient(circle at 70% 15%, rgba(255,255,255,0.05) 0 3px, transparent 4px),
+      linear-gradient(160deg, #3B2314 0%, #5A3420 50%, #2A1608 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; color: #F5E6D3;
+  }
+
+  .game-shell {
+    width: 100%; max-width: 820px;
+    background: linear-gradient(180deg, #FFF8EE 0%, #F3E1C7 100%);
+    border-radius: 28px;
+    border: 6px solid #6F4E37;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.55), inset 0 0 40px rgba(111,78,55,0.15);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Coffee bean decorations */
+  .bean {
+    position: absolute; width: 26px; height: 18px;
+    background: #6F4E37; border-radius: 50%;
+    transform: rotate(-25deg); opacity: 0.15;
+  }
+  .bean::after {
+    content: ''; position: absolute; left: 50%; top: 15%;
+    width: 2px; height: 70%; background: #FFF8EE;
+    transform: translateX(-50%) rotate(8deg); border-radius: 2px;
+  }
+  .bean.b1 { top: 18px; left: 24px; }
+  .bean.b2 { top: 40px; right: 40px; transform: rotate(35deg); }
+  .bean.b3 { bottom: 30px; left: 60px; transform: rotate(60deg); }
+  .bean.b4 { bottom: 60px; right: 30px; transform: rotate(-50deg); }
+
+  header {
+    background: linear-gradient(90deg, #4A2C17 0%, #6F4E37 50%, #4A2C17 100%);
+    padding: 18px 24px; text-align: center;
+    border-bottom: 4px dashed #C8A27A;
+    position: relative; z-index: 2;
+  }
+  header h1 {
+    font-size: 1.5rem; color: #FFE9C9; letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  }
+  header p { font-size: 0.85rem; color: #D9BFA3; margin-top: 4px; }
+
+  .stage {
+    display: flex; align-items: center; gap: 20px;
+    padding: 20px 26px 4px; position: relative; z-index: 2;
+  }
+
+  /* Ms. Cappucinia */
+  .character { flex: 0 0 120px; text-align: center; }
+  .cappucinia { position: relative; width: 100px; height: 120px; margin: 0 auto; }
+  .cup {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 60px; background: #FFF8EE;
+    border: 4px solid #6F4E37; border-radius: 0 0 40px 40px;
+    box-shadow: inset 0 -8px 0 #D9BFA3;
+  }
+  .cup::after {
+    content: ''; position: absolute; right: -22px; top: 12px;
+    width: 26px; height: 30px; border: 4px solid #6F4E37;
+    border-left: none; border-radius: 0 16px 16px 0;
+  }
+  .saucer {
+    position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    width: 104px; height: 14px; background: #6F4E37; border-radius: 50%;
+  }
+  .face {
+    position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+    width: 62px; height: 34px;
+  }
+  .eye {
+    position: absolute; top: 4px; width: 9px; height: 9px;
+    background: #3B2314; border-radius: 50%;
+    transition: all 0.25s ease;
+  }
+  .eye.left { left: 8px; }
+  .eye.right { right: 8px; }
+  .mouth {
+    position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+    width: 26px; height: 12px;
+    border: 3px solid #3B2314; border-top: none;
+    border-radius: 0 0 26px 26px;
+    transition: all 0.25s ease;
+  }
+  .steam {
+    position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+    width: 40px; height: 30px;
+  }
+  .steam span {
+    position: absolute; bottom: 0; width: 6px; height: 6px;
+    background: rgba(255,255,255,0.75); border-radius: 50%;
+    animation: rise 2s infinite ease-in;
+  }
+  .steam span:nth-child(1) { left: 4px; animation-delay: 0s; }
+  .steam span:nth-child(2) { left: 16px; animation-delay: 0.5s; }
+  .steam span:nth-child(3) { left: 28px; animation-delay: 1s; }
+
+  @keyframes rise {
+    0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+    30%  { opacity: 0.9; }
+    100% { transform: translateY(-26px) scale(1.4); opacity: 0; }
+  }
+
+  /* Happy state: clap + smile */
+  .cappucinia.happy .cup { animation: clap 0.35s infinite alternate; }
+  .cappucinia.happy .mouth {
+    width: 30px; height: 16px; border-width: 4px;
+    border-radius: 0 0 30px 30px; background: #3B2314;
+  }
+  .cappucinia.happy .eye { height: 5px; border-radius: 4px; }
+
+  @keyframes clap {
+    from { transform: translateX(-50%) rotate(-4deg); }
+    to   { transform: translateX(-50%) rotate(4deg); }
+  }
+
+  /* Stern state: frown */
+  .cappucinia.stern .mouth {
+    width: 24px; height: 8px;
+    border: 3px solid #3B2314; border-bottom: none;
+    border-radius: 24px 24px 0 0; background: transparent;
+  }
+  .cappucinia.stern .eye { background: #8B1E1E; }
+
+  .speech {
+    flex: 1; background: #FFF8EE;
+    border: 3px solid #6F4E37; border-radius: 18px;
+    padding: 14px 18px; min-height: 72px;
+    display: flex; align-items: center;
+    font-size: 0.95rem; color: #4A2C17;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    position: relative;
+  }
+  .speech::before {
+    content: ''; position: absolute; left: -14px; top: 26px;
+    border: 8px solid transparent; border-right-color: #6F4E37;
+  }
+
+  .progress {
+    padding: 0 26px 10px; font-size: 0.8rem; color: #6F4E37;
+    font-weight: 600; position: relative; z-index: 2;
+  }
+
+  .question-box {
+    margin: 0 26px 18px; background: #FFFFFF;
+    border-radius: 18px; padding: 22px;
+    border: 3px solid #C8A27A;
+    box-shadow: 0 8px 20px rgba(111,78,55,0.15);
+    position: relative; z-index: 2;
+  }
+  .question-box h2 {
+    font-size: 1.15rem; color: #3B2314; line-height: 1.5;
+    margin-bottom: 18px;
+  }
+
+  .options { display: grid; gap: 12px; }
+
+  .option-btn {
+    width: 100%; padding: 16px 20px; text-align: left;
+    background: linear-gradient(90deg, #F3E1C7 0%, #FFF8EE 100%);
+    border: 3px solid #6F4E37; border-radius: 14px;
+    font-size: 1rem; color: #3B2314; cursor: pointer;
+    transition: all 0.2s ease; font-weight: 600;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .option-btn .bean-icon {
+    flex: 0 0 22px; height: 15px; background: #6F4E37;
+    border-radius: 50%; position: relative; transform: rotate(-20deg);
+  }
+  .option-btn .bean-icon::after {
+    content: ''; position: absolute; left: 50%; top: 12%;
+    width: 1.5px; height: 76%; background: #FFF8EE; transform: translateX(-50%);
+  }
+  .option-btn:hover:not(:disabled) {
+    background: linear-gradient(90deg, #E8CFA9 0%, #F3E1C7 100%);
+    transform: translateX(4px);
+  }
+  .option-btn:disabled { cursor: default; opacity: 0.85; }
+  .option-btn.correct {
+    background: linear-gradient(90deg, #2E7D32 0%, #66BB6A 100%);
+    color: #FFF; border-color: #1B5E20;
+  }
+  .option-btn.correct .bean-icon { background: #FFF; }
+  .option-btn.correct .bean-icon::after { background: #2E7D32; }
+  .option-btn.wrong {
+    background: linear-gradient(90deg, #8B1E1E 0%, #C62828 100%);
+    color: #FFF; border-color: #5A0F0F;
+  }
+  .option-btn.wrong .bean-icon { background: #FFF; }
+  .option-btn.wrong .bean-icon::after { background: #8B1E1E; }
+
+  .footer-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 26px 22px; position: relative; z-index: 2;
+  }
+  .score-pill {
+    background: #6F4E37; color: #FFF8EE; padding: 8px 18px;
+    border-radius: 30px; font-size: 0.85rem; font-weight: 700;
+  }
+  .next-btn {
+    padding: 12px 28px; border: none; border-radius: 30px;
+    background: linear-gradient(90deg, #6F4E37 0%, #A67B5B 100%);
+    color: #FFF8EE; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: transform 0.15s ease;
+    box-shadow: 0 6px 14px rgba(111,78,55,0.4);
+  }
+  .next-btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .next-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .end-screen {
+    text-align: center; padding: 40px 26px;
+    position: relative; z-index: 2;
+  }
+  .end-screen h2 { color: #3B2314; margin-bottom: 12px; }
+  .end-screen p { color: #6F4E37; margin-bottom: 22px; font-size: 1.05rem; }
+  .restart-btn {
+    padding: 14px 34px; border: none; border-radius: 30px;
+    background: linear-gradient(90deg, #6F4E37 0%, #A67B5B 100%);
+    color: #FFF8EE; font-size: 1rem; font-weight: 700; cursor: pointer;
+  }
+
+  @media (max-width: 560px) {
+    header h1 { font-size: 1.15rem; }
+    .stage { flex-direction: column; gap: 12px; }
+    .speech::before { display: none; }
+    .question-box h2 { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-shell">
+  <span class="bean b1"></span><span class="bean b2"></span>
+  <span class="bean b3"></span><span class="bean b4"></span>
+
+  <header>
+    <h1>☕ Ms. Cappucinia's Stress-Buster Quiz</h1>
+    <p>Stress Management &amp; Mental Health for Teachers in India</p>
+  </header>
+
+  <div id="gameArea">
+    <div class="stage">
+      <div class="character">
+        <div class="cappucinia" id="cappucinia">
+          <div class="steam"><span></span><span></span><span></span></div>
+          <div class="cup"></div>
+          <div class="saucer"></div>
+          <div class="face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+          </div>
+        </div>
+      </div>
+      <div class="speech" id="speech">Namaste! I'm Ms. Cappucinia. Let's brew some calm together. Ready?</div>
+    </div>
+
+    <div class="progress" id="progress">Question 1</div>
+
+    <div class="question-box">
+      <h2 id="questionText">Loading…</h2>
+      <div class="options" id="options"></div>
+    </div>
+
+    <div class="footer-bar">
+      <div class="score-pill" id="score">Score: 0</div>
+      <button class="next-btn" id="nextBtn" disabled>Next ☕</button>
+    </div>
+  </div>
+
+  <div class="end-screen" id="endScreen" style="display:none;">
+    <h2>Quiz Complete! ☕</h2>
+    <p id="finalScore"></p>
+    <button class="restart-btn" onclick="restartGame()">Brew Again</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ✏️  UPLOAD YOUR 100 QUESTIONS HERE
+   ------------------------------------------------------------
+   Format: { q: "Question text", options: ["Option A", "Option B"], answer: 0 }
+   - answer: 0  → first option is correct
+   - answer: 1  → second option is correct
+   You can paste up to 100 entries. Just follow the same pattern.
+   ============================================================ */
+
+const QUESTIONS = [
+  { q: "What is the most effective first step when you feel overwhelmed by correcting a huge pile of answer sheets?",
+    options: ["Break the pile into smaller, timed chunks", "Finish all of them in one sleepless night"],
+    answer: 0 },
+
+  { q: "Which breathing technique is quick and effective for calming nerves before a lecture?",
+    options: ["4-7-8 breathing (inhale 4, hold 7, exhale 8)", "Holding your breath as long as possible"],
+    answer: 0 },
+
+  { q: "A colleague constantly complains and drains your energy. What is a healthy response?",
+    options: ["Politely limit the conversation and redirect to solutions", "Avoid them completely and never speak"],
+    answer: 0 },
+
+  { q: "What is a sign of teacher burnout that should not be ignored?",
+    options: ["Persistent exhaustion even after rest", "Enjoying a quiet weekend"],
+    answer: 0 },
+
+  { q: "Which is a healthy way to handle a difficult parent interaction?",
+    options: ["Take a few breaths and respond calmly and professionally", "Raise your voice to establish authority"],
+    answer: 0 },
+
+  { q: "How can teachers protect their mental health during exam season?",
+    options: ["Schedule short breaks and protect sleep", "Skip meals to save time"],
+    answer: 0 },
+
+  { q: "What is the best way to start your day to reduce stress?",
+    options: ["A few minutes of quiet breathing or stretching", "Checking emails the moment you wake up"],
+    answer: 0 },
+
+  { q: "Which habit supports long-term emotional resilience?",
+    options: ["Regular physical activity and social connection", "Keeping all feelings to yourself"],
+    answer: 0 },
+
+  { q: "When a student misbehaves repeatedly, a stress-reducing approach is to:",
+    options: ["Address the behaviour calmly and seek support if needed", "Take it personally and dwell on it all night"],
+    answer: 0 },
+
+  { q: "What is a healthy boundary to set as a teacher?",
+    options: ["Fixed hours for checking messages and emails", "Being available 24/7 to everyone"],
+    answer: 0 },
+
+  /* 👇 ADD MORE QUESTIONS BELOW IN THE SAME FORMAT 👇
+     Copy, paste and edit. Up to 100 entries. */
+];
+
+/* ============================================================
+   GAME LOGIC — no need to edit below this line
+   ============================================================ */
+
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+
+const cappucinia = document.getElementById('cappucinia');
+const speechEl = document.getElementById('speech');
+const questionText = document.getElementById('questionText');
+const optionsEl = document.getElementById('options');
+const progressEl = document.getElementById('progress');
+const scoreEl = document.getElementById('score');
+const nextBtn = document.getElementById('nextBtn');
+const gameArea = document.getElementById('gameArea');
+const endScreen = document.getElementById('endScreen');
+const finalScore = document.getElementById('finalScore');
+
+const happyLines = [
+  "Bravo! That's the right brew! ☕👏",
+  "Excellent! You've got great coping skills!",
+  "Perfect! Ms. Cappucinia is applauding!",
+  "Well done! Keep that calm energy going!",
+  "Spot on! Your mental health thanks you!"
+];
+
+const sternLines = [
+  "Hmm. That's not quite it. Try a gentler approach.",
+  "Not the best choice, dear. Let's rethink.",
+  "Oh no — that would only add to the stress!",
+  "Ms. Cappucinia is frowning. Reconsider that one.",
+  "That's a bitter sip! The correct answer is highlighted."
+];
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let activeQuestions = [];
+
+function startGame() {
+  activeQuestions = shuffle(QUESTIONS);
+  currentIndex = 0;
+  score = 0;
+  gameArea.style.display = 'block';
+  endScreen.style.display = 'none';
+  scoreEl.textContent = 'Score: 0';
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  nextBtn.disabled = true;
+  cappucinia.classList.remove('happy', 'stern');
+  speechEl.textContent = "Take your time. Which feels like the healthier choice?";
+
+  const q = activeQuestions[currentIndex];
+  questionText.textContent = q.q;
+  progressEl.textContent = `Question ${currentIndex + 1} of ${activeQuestions.length}`;
+
+  optionsEl.innerHTML = '';
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="bean-icon"></span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(idx, q.answer, btn);
+    optionsEl.appendChild(btn);
+  });
+}
+
+function selectAnswer(chosen, correct, btn) {
+  if (answered) return;
+  answered = true;
+
+  const allBtns = optionsEl.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  if (chosen === correct) {
+    score++;
+    scoreEl.textContent = 'Score: ' + score;
+    btn.classList.add('correct');
+    cappucinia.classList.add('happy');
+    speechEl.textContent = happyLines[Math.floor(Math.random() * happyLines.length)];
+  } else {
+    btn.classList.add('wrong');
+    allBtns[correct].classList.add('correct');
+    cappucinia.classList.add('stern');
+    speechEl.textContent = sternLines[Math.floor(Math.random() * sternLines.length)];
+  }
+
+  nextBtn.disabled = false;
+}
+
+nextBtn.onclick = () => {
+  currentIndex++;
+  if (currentIndex >= activeQuestions.length) {
+    showEnd();
+  } else {
+    loadQuestion();
+  }
+};
+
+function showEnd() {
+  gameArea.style.display = 'none';
+  endScreen.style.display = 'block';
+  const pct = Math.round((score / activeQuestions.length) * 100);
+  let msg = `You scored ${score} out of ${activeQuestions.length} (${pct}%). `;
+  if (pct >= 80) msg += "Ms. Cappucinia is beaming with pride! ☕🌟";
+  else if (pct >= 50) msg += "A good brew — keep practising those calm habits!";
+  else msg += "Time for a fresh cup and another round!";
+  finalScore.textContent = msg;
+}
+
+function restartGame() {
+  startGame();
+}
+
+startGame();
+</script>
+</body>
+</html>
